@@ -5,9 +5,13 @@ export type AnyObject = {
   [key: string]: any
 }
 
+export type ActionFunctionDescriptor<T extends AnyObject> = {
+  (...args: any[]): Promise<T>
+}
+
 export type ActionFunction<T extends AnyObject> = {
-  (...args: any[]): T
-  _$state: T
+  (...args: any[]): Promise<T>
+  _$state?: T
 }
 
 export type AnyFunction<T> = (...args: any[]) => T
@@ -15,14 +19,14 @@ export type AnyFunction<T> = (...args: any[]) => T
 export type VxsStoreConstructor<T extends AnyObject> = {
   state: T
   getters: { [key: string]: AnyFunction<any> }
-  actions: { [key: string]: AnyFunction<T> }
+  actions: { [key: string]: ActionFunctionDescriptor<T> }
 }
 
 export function VxsStore<T extends AnyObject>({
   state: inputState,
   getters,
   actions
-}: VxsStoreConstructor<T>) {
+}: VxsStoreConstructor<T>): VxsStoreType<T> {
   // @ts-ignore
   const state = Vue.observable(inputState)
   const patchState = (patch: AnyObject) => {
@@ -65,6 +69,15 @@ export function VxsStore<T extends AnyObject>({
     dispatch
   }
   return store
+}
+
+export type VxsStoreType<T> = {
+  state: T
+  getters: { [key: string]: AnyFunction<any> }
+  actions: { [key: string]: ActionFunction<T> }
+  patchState: (arg: object) => T
+  getField: (field: string) => () => T
+  dispatch: (func: ActionFunction<T>, ...rest: any[]) => Promise<void>
 }
 
 export function Action<T>(actionFunc: ActionFunction<T>) {
