@@ -2,9 +2,12 @@ import Vue from 'vue';
 export declare type AnyObject = {
     [key: string]: any;
 };
+export declare type ActionFunctionDescriptor<T extends AnyObject> = {
+    (...args: any[]): Promise<T>;
+};
 export declare type ActionFunction<T extends AnyObject> = {
-    (...args: any[]): T;
-    _$state: T;
+    (...args: any[]): Promise<T>;
+    _$state?: T;
 };
 export declare type AnyFunction<T> = (...args: any[]) => T;
 export declare type VxsStoreConstructor<T extends AnyObject> = {
@@ -13,15 +16,20 @@ export declare type VxsStoreConstructor<T extends AnyObject> = {
         [key: string]: AnyFunction<any>;
     };
     actions: {
-        [key: string]: AnyFunction<T>;
+        [key: string]: ActionFunctionDescriptor<T>;
     };
 };
-export declare function VxsStore<T extends AnyObject>({ state: inputState, getters, actions }: VxsStoreConstructor<T>): {
+export declare function VxsStore<T extends AnyObject>({ state: inputState, getters, actions }: VxsStoreConstructor<T>): VxsStoreType<T>;
+export declare type VxsStoreType<T> = {
     state: T;
-    getters: {};
-    actions: {};
-    patchState: (patch: AnyObject) => T & AnyObject;
-    getField: (field: string) => () => any;
+    getters: {
+        [key: string]: AnyFunction<any>;
+    };
+    actions: {
+        [key: string]: ActionFunction<T>;
+    };
+    patchState: (arg: object) => T;
+    getField: (field: string) => () => T;
     dispatch: (func: ActionFunction<T>, ...rest: any[]) => Promise<void>;
 };
 export declare function Action<T>(actionFunc: ActionFunction<T>): (target: any, key: string) => void;
