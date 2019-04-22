@@ -181,7 +181,67 @@ function Get(params) {
         })(target, key);
     };
 }
+function mapGetters(fields) {
+    var _this = this;
+    return Object.entries(fields).reduce(function (acc, _a) {
+        var key = _a[0], value = _a[1];
+        acc[key] = {
+            get: function () {
+                if (typeof value === 'function') {
+                    return value();
+                }
+                return value.getter();
+            },
+            set: function (setterValue) { return __awaiter(_this, void 0, void 0, function () {
+                var _a, _b, _c;
+                return __generator(this, function (_d) {
+                    switch (_d.label) {
+                        case 0:
+                            if (!value.setterAction) return [3 /*break*/, 2];
+                            _b = (_a = Object).assign;
+                            _c = [value.setterAction._$state];
+                            return [4 /*yield*/, value.setterAction(setterValue)];
+                        case 1:
+                            _b.apply(_a, _c.concat([_d.sent()]));
+                            _d.label = 2;
+                        case 2: return [2 /*return*/];
+                    }
+                });
+            }); }
+        };
+        return acc;
+    }, {});
+}
+function mapActions(fields) {
+    var _this = this;
+    return Object.entries(fields).reduce(function (acc, _a) {
+        var key = _a[0], value = _a[1];
+        acc[key] = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            return __awaiter(_this, void 0, void 0, function () {
+                var _a, _b, _c;
+                return __generator(this, function (_d) {
+                    switch (_d.label) {
+                        case 0:
+                            _b = (_a = Object).assign;
+                            _c = [value._$state];
+                            return [4 /*yield*/, value.apply(null, args)];
+                        case 1:
+                            _b.apply(_a, _c.concat([_d.sent()]));
+                            return [2 /*return*/];
+                    }
+                });
+            });
+        };
+        return acc;
+    }, {});
+}
 
 exports.Action = Action;
 exports.Get = Get;
 exports.VxsStore = VxsStore;
+exports.mapActions = mapActions;
+exports.mapGetters = mapGetters;

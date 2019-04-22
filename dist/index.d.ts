@@ -38,6 +38,20 @@ export declare type ParametrizedGetter = {
     setterAction: ActionFunction<any>;
 };
 export declare function Get(params: AnyFunction<any> | ParametrizedGetter): (target: Vue, key: string) => void;
+export declare type GetterSetterObject = {
+    [key: string]: {
+        get: AnyFunction<any>;
+        set: ActionFunction<any>;
+    };
+};
+export declare function mapGetters(fields: {
+    [key: string]: AnyFunction<any> | ParametrizedGetter;
+}): GetterSetterObject;
+export declare function mapActions(fields: {
+    [key: string]: ActionFunction<any>;
+}): {
+    [key: string]: ActionFunction<any>;
+};
 export declare type Getter<T> = {
     value: T;
 };
