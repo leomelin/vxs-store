@@ -2,6 +2,8 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+var vueClassComponent = require('vue-class-component');
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use
@@ -65,106 +67,21 @@ function __generator(thisArg, body) {
     }
 }
 
-function VxsStore(_a) {
-    var _this = this;
-    var inputState = _a.state, getters = _a.getters, actions = _a.actions;
-    // @ts-ignore
-    var state = Vue.observable(inputState);
-    var patchState = function (patch) {
-        return __assign({}, state, patch);
-    };
-    var dispatch = function (func) {
-        var rest = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            rest[_i - 1] = arguments[_i];
-        }
-        return __awaiter(_this, void 0, void 0, function () {
-            var newState;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, func.apply(null, rest)];
-                    case 1:
-                        newState = _a.sent();
-                        Object.assign(func._$state, newState);
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    var store = {
-        state: state,
-        getters: Object.entries(getters).reduce(function (acc, _a) {
-            var key = _a[0], func = _a[1];
-            // @ts-ignore
-            acc[key] = func.bind(null, state);
-            return acc;
-        }, {}),
-        actions: Object.entries(actions).reduce(function (acc, _a) {
-            var key = _a[0], func = _a[1];
-            // @ts-ignore
-            acc[key] = func.bind(null, {
-                state: state,
-                patchState: patchState,
-                dispatch: dispatch
-            });
-            acc[key]._$state = state; // Save reference to state as action function property
-            return acc;
-        }, {}),
-        patchState: patchState,
-        getField: function (field) { return function () { return state[field]; }; },
-        dispatch: dispatch
-    };
-    return store;
-}
-
-function mapGetters(fields) {
-    var _this = this;
-    return Object.entries(fields).reduce(function (acc, _a) {
-        var key = _a[0], value = _a[1];
-        acc[key] = {
-            get: function () {
-                if (typeof value === 'function') {
-                    return value();
-                }
-                return value.getter();
-            },
-            set: function (setterValue) { return __awaiter(_this, void 0, void 0, function () {
-                var _a, _b, _c;
-                return __generator(this, function (_d) {
-                    switch (_d.label) {
-                        case 0:
-                            if (!value.setterAction) return [3 /*break*/, 2];
-                            _b = (_a = Object).assign;
-                            _c = [value.setterAction._$state];
-                            return [4 /*yield*/, value.setterAction(setterValue)];
-                        case 1:
-                            _b.apply(_a, _c.concat([_d.sent()]));
-                            _d.label = 2;
-                        case 2: return [2 /*return*/];
-                    }
-                });
-            }); }
-        };
-        return acc;
-    }, {});
-}
-function mapActions(fields) {
-    var _this = this;
-    return Object.entries(fields).reduce(function (acc, _a) {
-        var key = _a[0], value = _a[1];
-        acc[key] = function () {
-            var args = [];
+function Action(actionFunc) {
+    return function (target, key) {
+        target[key] = function () {
+            var rest = [];
             for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
+                rest[_i] = arguments[_i];
             }
-            return __awaiter(_this, void 0, void 0, function () {
+            return __awaiter(this, void 0, void 0, function () {
                 var _a, _b, _c;
                 return __generator(this, function (_d) {
                     switch (_d.label) {
                         case 0:
                             _b = (_a = Object).assign;
-                            _c = [value._$state];
-                            return [4 /*yield*/, value.apply(null, args)];
+                            _c = [actionFunc._$state];
+                            return [4 /*yield*/, actionFunc.apply(null, rest)];
                         case 1:
                             _b.apply(_a, _c.concat([_d.sent()]));
                             return [2 /*return*/];
@@ -172,10 +89,44 @@ function mapActions(fields) {
                 });
             });
         };
-        return acc;
-    }, {});
+    };
+}
+function Get(params) {
+    var getterFunction = typeof params === 'function' ? params : params.getter;
+    return function (target, key) {
+        vueClassComponent.createDecorator(function (componentOptions, k) {
+            var _a;
+            componentOptions.inject = __assign({}, (componentOptions.inject || {}), (_a = {}, _a[k] = {
+                default: function () {
+                    return Object.defineProperty(this, k, {
+                        enumerable: true,
+                        get: function () {
+                            return getterFunction();
+                        },
+                        set: function (value) {
+                            return __awaiter(this, void 0, void 0, function () {
+                                var _a, _b, _c;
+                                return __generator(this, function (_d) {
+                                    switch (_d.label) {
+                                        case 0:
+                                            if (!params.setterAction) return [3 /*break*/, 2];
+                                            _b = (_a = Object).assign;
+                                            _c = [params.setterAction._$state];
+                                            return [4 /*yield*/, params.setterAction(value)];
+                                        case 1:
+                                            _b.apply(_a, _c.concat([_d.sent()]));
+                                            _d.label = 2;
+                                        case 2: return [2 /*return*/];
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+            }, _a));
+        })(target, key);
+    };
 }
 
-exports.VxsStore = VxsStore;
-exports.mapActions = mapActions;
-exports.mapGetters = mapGetters;
+exports.Action = Action;
+exports.Get = Get;

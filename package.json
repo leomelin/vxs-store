@@ -4,8 +4,12 @@
   "description": "VXS Store (Vue Extra Simple Store) is a simple state management library for Vue",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rollup -c rollup.config.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c rollup.config.js && rollup -c rollup.config.decorators.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "link-module-alias"
+  },
+  "_moduleAliases": {
+    "decorators" : "lib/decorators.js"
   },
   "repository": {
     "type": "git",
@@ -22,15 +26,18 @@
     "url": "https://github.com/leomelin/vxs-store/issues"
   },
   "homepage": "https://github.com/leomelin/vxs-store#readme",
+  "optionalDependencies": {
+    "vue-class-component": "^7.0.2"
+  },
   "devDependencies": {
     "@types/jest": "^24.0.11",
     "@types/webpack-env": "^1.13.9",
+    "link-module-alias": "^1.2.0",
     "prettier": "^1.17.0",
     "rollup": "^1.10.1",
     "tslint": "^5.16.0",
     "typescript": "^3.4.4",
-    "vue": "^2.6.10",
-    "vue-class-component": "^7.0.2"
+    "vue": "^2.6.10"
   },
   "dependencies": {
     "rollup-plugin-typescript2": "^0.20.1"
